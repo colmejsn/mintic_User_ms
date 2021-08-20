@@ -1,4 +1,5 @@
 from django.conf import settings
+from .models import bankUser
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenVerifyView
@@ -13,6 +14,9 @@ class VerifyTokenView(TokenVerifyView):
             serializer.is_valid(raise_exception=True)
             valid_data = tokenBackend.decode(token,verify=False)
             serializer.validated_data['UserId'] = valid_data['user_id']
+            bankUser1 = bankUser.objects.get(id=valid_data['user_id'])           
+            serializer.validated_data['dni'] = f'{bankUser1.identi}'
+            serializer.validated_data['Doctor'] = f'{bankUser1.doctor}'
         except TokenError as e:
             raise InvalidToken(e.args[0])
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
